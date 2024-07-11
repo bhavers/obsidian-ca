@@ -295,7 +295,7 @@ SORT modelType ASC\n
 
     /** Returns the handle to this plugin */
     getSetting<K extends keyof CAPluginSettings>(key: K): string | boolean {
-        const plugin = this.obsApp.plugins.getPlugin("obsidian-ca") as CAPlugin;
+        const plugin = this.obsApp.plugins.getPlugin("ca-sync") as CAPlugin;
         return plugin.settings[key];
     }
 
