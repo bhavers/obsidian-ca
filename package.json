@@ -1,5 +1,5 @@
 {
-    "name": "cognitive-architect-plugin",
+    "name": "obsidian-ca",
     "version": "1.0.0",
     "description": "Synchronise Cognitive Architect (IBM IT Architect Assisant) architectures to Obsidian.",
     "main": "main.js",
