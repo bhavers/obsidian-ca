@@ -1,9 +1,9 @@
 {
-    "id": "cognitive-architect-plugin",
+    "id": "obsidian-ca",
     "name": "Cognitive Architect Sync",
     "version": "1.0.0",
     "minAppVersion": "1.6.0",
-    "description": "Synchronise Cognitive Architect (aka IBM IT Architect Assisant) architectures to Obsidian.",
+    "description": "Synchronise Cognitive Architect (aka IBM IT Architect Assistant) architectures to Obsidian.",
     "author": "Bram Havers",
     "authorUrl": "",
     "isDesktopOnly": true
