@@ -5,26 +5,14 @@
         "module": "ESNext",
         "target": "ES6",
         "allowJs": true,
-        "noImplicitAny": true,
+        "noImplicitAny": false,
         "moduleResolution": "node",
         "importHelpers": true,
         "isolatedModules": true,
         "strictNullChecks": true,
-        "lib": [
-            "DOM",
-            "ES5",
-            "ES6",
-            "ES7"
-        ],
-        "types": [
-            "obsidian-typings"
-        ]
+        "lib": ["DOM", "ES5", "ES6", "ES7", "ESNext"],
+        "types": ["obsidian-typings"]
     },
     "extends": "@tsconfig/svelte/tsconfig.json",
-    "include": [
-        "**/globals.d.ts",
-        "**/*.js",
-        "**/*.svelte",
-        "**/*.ts"
-    ]
+    "include": ["**/globals.d.ts", "**/*.js", "**/*.svelte", "**/*.ts"]
 }
