@@ -3,7 +3,7 @@
     "name": "Cognitive Architect Sync",
     "version": "1.0.0",
     "minAppVersion": "1.6.0",
-    "description": "Synchronise Cognitive Architect (aka IBM IT Architect Assistant) architectures to Obsidian.",
+    "description": "Synchronise Cognitive Architect (aka IBM IT Architect Assistant) architectures.",
     "author": "Bram Havers",
     "authorUrl": "",
     "isDesktopOnly": true

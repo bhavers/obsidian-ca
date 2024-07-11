@@ -1,7 +1,7 @@
 {
     "name": "obsidian-ca",
     "version": "1.0.0",
-    "description": "Synchronise Cognitive Architect (IBM IT Architect Assisant) architectures to Obsidian.",
+    "description": "Synchronise Cognitive Architect (IBM IT Architect Assisant) architectures.",
     "main": "main.js",
     "scripts": {
         "lint": "npx eslint --ext .ts,.svelte .",
