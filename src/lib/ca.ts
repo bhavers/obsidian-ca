@@ -68,11 +68,11 @@ export class CAArchitecture {
                 return true;
             } else {
                 // This won't be executed, the Promise will thrown an error.
-                console.log(`Error fetching list of architectures. HTTP error ${response.status}`);
+                // console.log(`Error fetching list of architectures. HTTP error ${response.status}`);
                 return false;
             }
         } catch (error) {
-            console.log(`Error retrieving list of architectures. \n${error} `);
+            // console.log(`Error retrieving list of architectures. \n${error} `);
             return false;
         }
     }
@@ -117,11 +117,11 @@ export class CAArchitecture {
                 //archList.set(response.json.data);
                 return response.json.data;
             } else {
-                console.log(`Error fetching list of architectures. HTTP error ${response.status}`);
+                // console.log(`Error fetching list of architectures. HTTP error ${response.status}`);
                 return null;
             }
         } catch (error) {
-            console.log(`Error retrieving list of architectures. \n${error} `);
+            // console.log(`Error retrieving list of architectures. \n${error} `);
             return null;
         }
     }
@@ -145,12 +145,12 @@ export class CAArchitecture {
                 selectedArch.set(archId);
                 archInfo.set(response.json);
             } else {
-                console.log(`Error ${response.status} and ${response.json}`);
+                // console.log(`Error ${response.status} and ${response.json}`);
             }
         } catch (error) {
             const err = `Can't retrieve information on architecture.`;
             errorMsgs.update((value) => [...value, err]);
-            console.log(`${err}\n${error} `);
+            // console.log(`${err}\n${error} `);
         }
     }
 
@@ -178,7 +178,7 @@ export class CAArchitecture {
         } catch (error) {
             const err = `Can't retrieve artefacts of architecture.`;
             errorMsgs.update((value) => [...value, err]);
-            console.log(`${err} \n${error} `);
+            // console.log(`${err} \n${error} `);
         }
     }
 
@@ -215,7 +215,7 @@ export class CAArchitecture {
         } catch (error) {
             const err = `Can't retrieve instances of an artefact.`;
             errorMsgs.update((value) => [...value, err]);
-            console.log(`${err}\n${error} `);
+            // console.log(`${err}\n${error} `);
         }
     }
 
@@ -253,7 +253,7 @@ export class CAArchitecture {
         } catch (error) {
             const err = `Can't retrieve the meta data an instance of an artefact.`;
             errorMsgs.update((value) => [...value, err]);
-            console.log(`${err}\n${error} `);
+            // console.log(`${err}\n${error} `);
             return null;
         }
     }
@@ -309,7 +309,7 @@ export class CAArchitecture {
         } catch (error) {
             const err = `Can't retrieve diagram.`;
             errorMsgs.update((value) => [...value, err]);
-            console.log(`${err}\n${error} `);
+            // console.log(`${err}\n${error} `);
             return null;
         }
     }

@@ -45,7 +45,7 @@ export class CAObsidian {
                 file = await this.obsApp.vault.create(this.fullPathLog, markdown);
             }
         } catch (error) {
-            console.log(error);
+            //console.log(error);
             //errorMsgs.set([]);
             return null;
         }
@@ -107,7 +107,7 @@ export class CAObsidian {
                         return null;
                     }
                 } catch (error) {
-                    console.log(error + " " + fullPath);
+                    //console.log(error + " " + fullPath);
                     return null;
                 }
             }
@@ -187,7 +187,7 @@ export class CAObsidian {
                 } catch (error) {
                     const err = `${error}`;
                     errorMsgs.update((value) => [...value, err + " " + filename]);
-                    console.log(error, filename, file);
+                    //console.log(error, filename, file);
                 }
                 counter++;
             }
@@ -221,7 +221,7 @@ export class CAObsidian {
                 return resElements;
             }
         } else {
-            console.log("No architecture and/or artifact selected.");
+            //console.log("No architecture and/or artifact selected.");
         }
         return null;
     }
@@ -265,7 +265,7 @@ SORT modelType ASC\n
             try {
                 this.obsApp.vault.createFolder(folder);
             } catch (error) {
-                console.log("Couldn't create folder: " + error);
+                // console.log("Couldn't create folder: " + error);
             }
         }
         return folder;

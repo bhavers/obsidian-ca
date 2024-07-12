@@ -121,7 +121,7 @@
         progress.set(0.4);
         // console.log(`saveArtifactDiagram() | selArtifact ${selectedArtifactId} | selInstance: ${selectedInstanceId}`);
         if (selectedArtifactType && selectedInstanceId) caObsidian.saveDiagram(artifactFormat, selectedArtifactType, selectedInstanceId);
-        else console.log("Not saving diagram, missing arguments.");
+        //else console.log("Not saving diagram, missing arguments.");
         caObsidian.saveLog("Save diagram");
         progress.set(1);
     }
@@ -134,7 +134,7 @@
             if (results) caObsidian.saveElements([results]);
 
             // caObsidian.saveInstance(selectedArtifactType, selectedInstanceId);
-        } else console.log("Not saving artifact, missing arguments.");
+        } //else console.log("Not saving artifact, missing arguments.");
         caObsidian.saveLog("Save artifact");
         progress.set(1);
     }
@@ -172,7 +172,7 @@
                     });
                     await caObsidian.saveElements(instances);
                     const totalTime = (performance.now() - t0) / 1000; // secs
-                    console.log(`Downloading ${artifact.artifactType} (${$archArtifactInstancesList.length} instances) took ${totalTime.toFixed(1)} sec.`);
+                    //console.log(`Downloading ${artifact.artifactType} (${$archArtifactInstancesList.length} instances) took ${totalTime.toFixed(1)} sec.`);
                 }
             }
         }

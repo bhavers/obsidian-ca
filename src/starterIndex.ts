@@ -20,7 +20,7 @@ export default class CAPlugin extends Plugin {
     private ca: CAArchitecture | null = null;
 
     async onload() {
-        console.log(`Initializing Cognitive Architect plugin (running on svelte version ${VERSION})`);
+        // console.log(`Initializing Cognitive Architect plugin (running on svelte version ${VERSION})`);
         await this.loadSettings();
         this.ca = new CAArchitecture(this.settings.baseUrl);
         this.ca.setToken(this.settings.personalToken);
