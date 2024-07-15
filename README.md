@@ -62,6 +62,25 @@ npm run build
 // Or yarn build
 ```
 
+## Upload new version to Obsidian plugin registry
+
+See [Obsidian's instructions](https://docs.obsidian.md/Plugins/Releasing/Submit+your+plugin).
+
+1. Update version in manifest.json (and package.json)
+2. Build the plugin
+   `npm run build`
+3. Add the changes to repo
+
+```
+git add .
+git commit -m "description of changes"
+git push
+```
+
+4. create a release with a tag with the same version: https://github.com/bhavers/obsidian-ca/releases/
+
+-   Add manifest.json, main.js and styles.css and Publish release
+
 ## Description of files
 
 | File                                                                         | Description                                                                              |
@@ -77,3 +96,7 @@ npm run build
 | lib/stores.ts                                                                | [Svelte Stores](https://svelte.dev/docs/svelte-store) and type definitions               |
 | lib/ca-openapi.json, ca-schema.d.ts and<br/> ca-schemaListArchitectures.d.ts | Typescript schema definitions generated from the Cognitive Architect OpenAPI definition  |
 | lib/progress.ts                                                              | Progress bar component (used in CAView)                                                  |
+
+```
+
+```

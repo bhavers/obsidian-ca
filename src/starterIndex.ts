@@ -15,7 +15,6 @@ export const CA_ICON_NAME = "monitor-down"; //https://lucide.dev/icons/monitor-d
  */
 
 export default class CAPlugin extends Plugin {
-    private view: CAView | null = null;
     public settings: CAPluginSettings = DEFAULT_SETTINGS;
     private ca: CAArchitecture | null = null;
 
@@ -25,7 +24,7 @@ export default class CAPlugin extends Plugin {
         this.ca = new CAArchitecture(this.settings.baseUrl);
         this.ca.setToken(this.settings.personalToken);
 
-        this.registerView(VIEW_TYPE, (leaf: WorkspaceLeaf) => (this.view = new CAView(leaf, this.ca)));
+        this.registerView(VIEW_TYPE, (leaf: WorkspaceLeaf) => new CAView(leaf, this.ca));
 
         this.app.workspace.onLayoutReady(this.onLayoutReady.bind(this));
 
@@ -37,11 +36,18 @@ export default class CAPlugin extends Plugin {
 
         // This adds the settings tab
         this.addSettingTab(new CASettingTab(this.app, this));
+
+        // Add command to open view
+        this.addCommand({
+            id: "open-caview",
+            name: "Open Cognitive Architect Sync panel.",
+            callback: () => this.activateView(),
+        });
     }
 
     onLayoutReady(): void {
         if (this.app.workspace.getLeavesOfType(VIEW_TYPE).length) {
-            this.app.workspace.rightSplit.collapsed && this.app.workspace.rightSplit.toggle();
+            this.activateView();
             return;
         }
         this.app.workspace.getRightLeaf(false)?.setViewState({
@@ -76,12 +82,12 @@ export default class CAPlugin extends Plugin {
         workspace.revealLeaf(leaf);
     }
     async activateView() {
-        this.app.workspace.detachLeavesOfType(VIEW_TYPE);
-
-        await this.app.workspace.getRightLeaf(false)?.setViewState({
-            type: VIEW_TYPE,
-            active: true,
-        });
+        if (!this.app.workspace.getLeavesOfType(VIEW_TYPE).length) {
+            await this.app.workspace.getRightLeaf(false)?.setViewState({
+                type: VIEW_TYPE,
+                active: true,
+            });
+        }
 
         this.app.workspace.revealLeaf(this.app.workspace.getLeavesOfType(VIEW_TYPE)[0]);
     }

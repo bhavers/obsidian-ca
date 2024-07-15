@@ -36,53 +36,10 @@ export class CASettingTab extends PluginSettingTab {
 
         containerEl.empty();
 
-        containerEl.createEl("h2", {
-            text: "Remote Service",
-        });
+        new Setting(containerEl).setName("General").setHeading();
 
         new Setting(containerEl)
-            .setName("Base URL")
-            .setDesc("The base url for the Cognitive Architect / IT Architect Assistant service (something like https://.../)")
-            .addText((text) =>
-                text
-                    .setPlaceholder("Enter url like https://...")
-                    .setValue(this.plugin.settings.baseUrl)
-                    .onChange(async (value) => {
-                        if (value.endsWith("/")) value = value.substring(0, value.length - 1);
-                        this.plugin.settings.baseUrl = value;
-                        await this.plugin.saveSettings();
-                        this.app.workspace.getLeavesOfType(VIEW_TYPE).forEach((leaf) => {
-                            if (leaf.view instanceof CAView) {
-                                // @ts-ignore       Undocumented rebuildView function, see https://forum.obsidian.md/t/creating-command-to-reload-page/57906
-                                leaf.rebuildView(); // reload the CA view
-                            }
-                        });
-                    })
-            );
-        new Setting(containerEl)
-            .setName("Personal Token")
-            .setDesc("Request a personal token at cogarch@us.ibm.com")
-            .addText((text) =>
-                text
-                    .setPlaceholder("Enter Personal Token")
-                    .setValue(this.plugin.settings.personalToken)
-                    .onChange(async (value) => {
-                        this.plugin.settings.personalToken = value;
-                        await this.plugin.saveSettings();
-                        this.app.workspace.getLeavesOfType(VIEW_TYPE).forEach((leaf) => {
-                            if (leaf.view instanceof CAView) {
-                                // @ts-ignore       Undocumented rebuildView function, see https://forum.obsidian.md/t/creating-command-to-reload-page/57906
-                                leaf.rebuildView(); // reload the CA view
-                            }
-                        });
-                    })
-            );
-
-        containerEl.createEl("h2", {
-            text: "General",
-        });
-        new Setting(containerEl)
-            .setName("Artifacts Import Folder")
+            .setName("Artifacts import folder")
             .setDesc("Folder to save imported Cognitive Architect artifacts to (relative to Vaults root folder)")
             .addText((text) =>
                 text
@@ -127,7 +84,7 @@ export class CASettingTab extends PluginSettingTab {
                     })
             );
         new Setting(containerEl)
-            .setName("Private Architectures")
+            .setName("Private architectures")
             .setDesc("Include your private architectures")
             .addToggle((toggle) =>
                 toggle.setValue(this.plugin.settings.retrievePrivateArchitectures).onChange(async (value) => {
@@ -136,7 +93,7 @@ export class CASettingTab extends PluginSettingTab {
                 })
             );
         new Setting(containerEl)
-            .setName("Collaboration Architectures")
+            .setName("Collaboration architectures")
             .setDesc("Include your collaboration architectures")
             .addToggle((toggle) =>
                 toggle.setValue(this.plugin.settings.retrieveCollaborationArchitectures).onChange(async (value) => {
@@ -145,9 +102,48 @@ export class CASettingTab extends PluginSettingTab {
                 })
             );
 
-        containerEl.createEl("h2", {
-            text: "Extra",
-        });
+        new Setting(containerEl).setName("Remote service").setHeading();
+
+        new Setting(containerEl)
+            .setName("Base URL")
+            .setDesc("The base url for the Cognitive Architect / IT Architect Assistant service (something like https://.../)")
+            .addText((text) =>
+                text
+                    .setPlaceholder("Enter url like https://...")
+                    .setValue(this.plugin.settings.baseUrl)
+                    .onChange(async (value) => {
+                        if (value.endsWith("/")) value = value.substring(0, value.length - 1);
+                        this.plugin.settings.baseUrl = value;
+                        await this.plugin.saveSettings();
+                        this.app.workspace.getLeavesOfType(VIEW_TYPE).forEach((leaf) => {
+                            if (leaf.view instanceof CAView) {
+                                // @ts-ignore       Undocumented rebuildView function, see https://forum.obsidian.md/t/creating-command-to-reload-page/57906
+                                leaf.rebuildView(); // reload the CA view
+                            }
+                        });
+                    })
+            );
+        new Setting(containerEl)
+            .setName("Personal token")
+            .setDesc("Request a personal token at cogarch@us.ibm.com")
+            .addText((text) =>
+                text
+                    .setPlaceholder("Enter Personal Token")
+                    .setValue(this.plugin.settings.personalToken)
+                    .onChange(async (value) => {
+                        this.plugin.settings.personalToken = value;
+                        await this.plugin.saveSettings();
+                        this.app.workspace.getLeavesOfType(VIEW_TYPE).forEach((leaf) => {
+                            if (leaf.view instanceof CAView) {
+                                // @ts-ignore       Undocumented rebuildView function, see https://forum.obsidian.md/t/creating-command-to-reload-page/57906
+                                leaf.rebuildView(); // reload the CA view
+                            }
+                        });
+                    })
+            );
+
+        new Setting(containerEl).setName("Extra").setHeading();
+
         new Setting(containerEl)
             .setName("Add identifier to project folder")
             .setDesc(

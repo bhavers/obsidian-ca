@@ -183,7 +183,7 @@
     /** Go to the Settings modal of the plugin */
     function gotoSettings() {
         obsApp.setting.open();
-        obsApp.setting.openTabById("cognitive-architect-plugin"); // find it with .lastTabId (this is the id in manifest.json)
+        obsApp.setting.openTabById("ca-sync"); // find it with .lastTabId (this is the id in manifest.json)
     }
     function openLog() {
         caObsidian.openLog();
