@@ -15,37 +15,47 @@
         type ArtifactType,
         archArtifactInstancesList,
         type ArtifactInstanceElement,
-    } from "./lib/stores";
+    } from "./lib/stores.svelte";
     import { CAArchfInfoModal } from "./CAArchInfoModal";
     import { ModalPreviewInstance } from "./ModalPreviewInstance";
     import { CAObsidian } from "./lib/ca-obsidian";
-    import { progress } from "./lib/stores";
-    import { errorMsgs } from "./lib/stores";
+    import { progress } from "./lib/stores.svelte";
+    import { errorMsgs } from "./lib/stores.svelte";
     import { Progress } from "./lib/progress";
 
-    export let ca: CAArchitecture | null;
-    export let obsApp: App;
-    const caObsidian = new CAObsidian(ca, obsApp);
-    let selectedArtifactId: string | null;
-    let selectedArtifactType: ArtifactType | null;
-    let selectedInstanceId: string | null; // Only this is unique (artifacts like RACI, Sizing and Notes are of type Notes; but have a unique id)
+    interface Props {
+        ca: CAArchitecture | null;
+        obsApp: App;
+    }
 
-    let loadEl: HTMLDivElement;
-    $: if (loadEl && $progress == 0) loadEl.style.display = "none";
-    else if (loadEl && $progress >= 1)
-        setTimeout(() => {
-            loadEl.style.display = "none";
-            progress.set(0, { duration: 0 });
-        }, 600);
-    else if (loadEl) loadEl.style.display = "block";
+    let { ca, obsApp }: Props = $props();
+    const caObsidian = new CAObsidian(ca, obsApp);
+
+    let selectedArtifactId: string | null = $state(null); // not sure if this needs to be reactive, but svelte 5 thinks so...
+    let selectedArtifactType: ArtifactType | null = $state(null);
+    let selectedInstanceId: string | null = $state(null); // Only this is unique (artifacts like RACI, Sizing and Notes are of type Notes; but have a unique id)
+
+    let loadEl: HTMLDivElement; // = $state();
+    $effect(() => {
+        if (loadEl && $progress == 0) loadEl.style.display = "none";
+        else if (loadEl && $progress >= 1)
+            setTimeout(() => {
+                loadEl.style.display = "none";
+                progress.set(0, { duration: 0 });
+            }, 600);
+        else if (loadEl) loadEl.style.display = "block";
+    });
 
     // Show error message and close manually.
+    //let errorEl: HTMLDivElement = $state() as HTMLDivElement;
     let errorEl: HTMLDivElement;
-    $: if (errorEl && $errorMsgs[0]) {
-        errorEl.style.display = "grid";
-    } else {
-        if (errorEl) errorEl.style.display = "none";
-    }
+    $effect(() => {
+        if (errorEl && $errorMsgs[0]) {
+            errorEl.style.display = "grid";
+        } else {
+            if (errorEl) errorEl.style.display = "none";
+        }
+    });
     function closeError() {
         errorEl.style.display = "none";
         $errorMsgs = [];
@@ -210,25 +220,25 @@
         <!-- classes borrowed from built-in Obsidian Backlinks views -->
         <div class="nav-header">
             <div class="nav-buttons-container">
-                <!-- svelte-ignore a11y-click-events-have-key-events -->
-                <!-- svelte-ignore a11y-no-static-element-interactions -->
-                <div on:click={getListArchitectures} aria-label="Refresh architecture information...">
+                <!-- svelte-ignore a11y_click_events_have_key_events -->
+                <!-- svelte-ignore a11y_no_static_element_interactions -->
+                <div onclick={getListArchitectures} aria-label="Refresh architecture information...">
                     <RefreshCw id="ca-refresh-btn" size="30" class="clickable-icon nav-action-button" />
                 </div>
-                <!-- svelte-ignore a11y-click-events-have-key-events -->
-                <!-- svelte-ignore a11y-no-static-element-interactions -->
-                <div on:click={gotoSettings} aria-label="Settings for this plugin.">
+                <!-- svelte-ignore a11y_click_events_have_key_events -->
+                <!-- svelte-ignore a11y_no_static_element_interactions -->
+                <div onclick={gotoSettings} aria-label="Settings for this plugin.">
                     <Settings size="30" class="clickable-icon nav-action-button" />
                 </div>
                 {#if $selectedArch !== SELECT_NONE}
-                    <!-- svelte-ignore a11y-click-events-have-key-events -->
-                    <!-- svelte-ignore a11y-no-static-element-interactions -->
-                    <div on:click={showArchitectureInfo} aria-label="Information on selected architecture.">
+                    <!-- svelte-ignore a11y_click_events_have_key_events -->
+                    <!-- svelte-ignore a11y_no_static_element_interactions -->
+                    <div onclick={showArchitectureInfo} aria-label="Information on selected architecture.">
                         <Info size="30" class="clickable-icon nav-action-button" />
                     </div>
-                    <!-- svelte-ignore a11y-click-events-have-key-events -->
-                    <!-- svelte-ignore a11y-no-static-element-interactions -->
-                    <div on:click={saveAll} aria-label="Save all architecture artifacts.">
+                    <!-- svelte-ignore a11y_click_events_have_key_events -->
+                    <!-- svelte-ignore a11y_no_static_element_interactions -->
+                    <div onclick={saveAll} aria-label="Save all architecture artifacts.">
                         <Download size="30" class="clickable-icon nav-action-button" />
                     </div>
                 {/if}
@@ -247,15 +257,15 @@
                 Error
             {/if}
         </div>
-        <!-- svelte-ignore a11y-no-static-element-interactions -->
-        <!-- svelte-ignore a11y-click-events-have-key-events -->
-        <div id="error-icon" on:click={closeError}>
+        <!-- svelte-ignore a11y_no_static_element_interactions -->
+        <!-- svelte-ignore a11y_click_events_have_key_events -->
+        <div id="error-icon" onclick={closeError}>
             <CircleX size="26" color="red" class="clickable-icon nav-action-button" />
         </div>
         <div id="error-msg">
             {#if $errorMsgs.length > 1}
-                <!-- svelte-ignore a11y-invalid-attribute -->
-                <a href="#" on:click={openLog}>Open logfile...</a>
+                <!-- svelte-ignore a11y_invalid_attribute -->
+                <a href="#" onclick={openLog}>Open logfile...</a>
             {:else}
                 {$errorMsgs[0]}
             {/if}
@@ -275,7 +285,7 @@
                     </label>
                 </div>
                 <div class="item_value">
-                    <select name="arch_name" id="arch_names" bind:value={$selectedArch} on:change={() => getListArtifacts()}>
+                    <select name="arch_name" id="arch_names" bind:value={$selectedArch} onchange={() => getListArtifacts()}>
                         {#if $selectedArch === SELECT_NONE}
                             <option selected disabled value="none">None selected</option>
                         {:else}
@@ -304,8 +314,8 @@
                                 {#if artifact._id === selectedArtifactId}
                                     <div style="font-weight:500">{artifact.displayName}</div>
                                 {:else}
-                                    <!-- svelte-ignore a11y-invalid-attribute -->
-                                    <a href="#" on:click={() => getListInstances(artifact.artifactType, artifact._id)}>{artifact.displayName}</a>
+                                    <!-- svelte-ignore a11y_invalid_attribute -->
+                                    <a href="#" onclick={() => getListInstances(artifact.artifactType, artifact._id)}>{artifact.displayName}</a>
                                 {/if}
                             </li>
                         {/each}
@@ -336,27 +346,27 @@
                     {/if}
                     <!-- {/key} -->
                     <div class="buttons-container">
-                        <!-- svelte-ignore a11y-no-static-element-interactions -->
-                        <!-- svelte-ignore a11y-click-events-have-key-events -->
-                        <div on:click={previewInstance} aria-label="Preview artifact">
+                        <!-- svelte-ignore a11y_no_static_element_interactions -->
+                        <!-- svelte-ignore a11y_click_events_have_key_events -->
+                        <div onclick={previewInstance} aria-label="Preview artifact">
                             <View size={32} class="clickable-icon nav-action-button" />
                             <!-- <a href="#" on:click={previewInstance()} aria-label="Preview artifact">Preview</a> | -->
                         </div>
-                        <!-- svelte-ignore a11y-no-static-element-interactions -->
-                        <!-- svelte-ignore a11y-click-events-have-key-events -->
-                        <div on:click={() => saveDiagram("svg")} aria-label="Save as vector image (.svg)">
+                        <!-- svelte-ignore a11y_no_static_element_interactions -->
+                        <!-- svelte-ignore a11y_click_events_have_key_events -->
+                        <div onclick={() => saveDiagram("svg")} aria-label="Save as vector image (.svg)">
                             <Svg size={32} class="clickable-icon nav-action-button" />
                             <!-- <a href="#" on:click={saveArtifactInstance("svg")} aria-label="Save as vector image (.svg)">svg</a> | -->
                         </div>
-                        <!-- svelte-ignore a11y-no-static-element-interactions -->
-                        <!-- svelte-ignore a11y-click-events-have-key-events -->
-                        <div on:click={() => saveDiagram("png")} aria-label="Save as bitmap image (.png)">
+                        <!-- svelte-ignore a11y_no_static_element_interactions -->
+                        <!-- svelte-ignore a11y_click_events_have_key_events -->
+                        <div onclick={() => saveDiagram("png")} aria-label="Save as bitmap image (.png)">
                             <Png size={32} class="clickable-icon nav-action-button" />
                             <!-- <a href="#" on:click={saveArtifactInstance("png")} aria-label="Save as bitmap image (.png)">png</a> -->
                         </div>
-                        <!-- svelte-ignore a11y-no-static-element-interactions -->
-                        <!-- svelte-ignore a11y-click-events-have-key-events -->
-                        <div on:click={() => saveInstance()} aria-label="Save this artifact (diagram and elements).">
+                        <!-- svelte-ignore a11y_no_static_element_interactions -->
+                        <!-- svelte-ignore a11y_click_events_have_key_events -->
+                        <div onclick={() => saveInstance()} aria-label="Save this artifact (diagram and elements).">
                             <DocumentDownload size={32} class="clickable-icon nav-action-button" />
                         </div>
                     </div>

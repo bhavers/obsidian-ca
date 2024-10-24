@@ -1,8 +1,16 @@
 import { Notice, TFile, type App } from "obsidian";
 import type { CAArchitecture } from "./ca";
-import { archInfo, selectedArch, SELECT_NONE, type ArtifactType, type ArtifactInstanceElement, type DiagramFormat, ARTIFACT_WITH_DIAGRAM } from "./stores";
+import {
+    archInfo,
+    selectedArch,
+    SELECT_NONE,
+    type ArtifactType,
+    type ArtifactInstanceElement,
+    type DiagramFormat,
+    ARTIFACT_WITH_DIAGRAM,
+} from "./stores.svelte";
 import { get } from "svelte/store";
-import { errorMsgs } from "./stores";
+import { errorMsgs } from "./stores.svelte";
 import type CAPlugin from "src/starterIndex";
 import type { CAPluginSettings } from "src/CASettings";
 

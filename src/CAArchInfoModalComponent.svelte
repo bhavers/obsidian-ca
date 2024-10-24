@@ -29,28 +29,34 @@
     No architecture selected.
 {:else}
     <table>
-        <tr><th>Property</th><th>Value</th></tr>
-        <tr><td>Id</td><td>{arch.archId}</td></tr>
-        <tr><td>Name</td><td>{arch.name}</td></tr>
-        <tr><td>Client</td><td>{arch.clientName}</td></tr>
-        <tr><td>Owner</td><td>{owner}</td></tr>
+        <tbody>
+            <tr><th>Property</th><th>Value</th></tr>
+            <tr><td>Id</td><td>{arch.archId}</td></tr>
+            <tr><td>Name</td><td>{arch.name}</td></tr>
+            <tr><td>Client</td><td>{arch.clientName}</td></tr>
+            <tr><td>Owner</td><td>{owner}</td></tr>
 
-        <tr><td>Last Modified</td><td>{arch.lastModified}</td></tr>
-        <tr><td>Last Modified by</td><td>{arch.lastModifiedUser?.fullname}</td></tr>
+            <tr><td>Last Modified</td><td>{arch.lastModified}</td></tr>
+            <tr><td>Last Modified by</td><td>{arch.lastModifiedUser?.fullname}</td></tr>
+        </tbody>
     </table>
-    <p />
+    <p></p>
     <h5>Co-authors</h5>
     <table>
-        <tr><th>Name</th><th>Rights</th><th>Job responsibility</th></tr>
-        {#each adminMembers as member}
-            <tr><td>{member.name}</td><td>Admin</td><td>{member.role}</td></tr>
-        {/each}
-        {#each editMembers as member}
-            <tr><td>{member.name}</td><td>Edit</td><td>{member.role}</td></tr>
-        {/each}
-        {#each viewMembers as member}
-            <tr><td>{member.name}</td><td>View</td><td>{member.role}</td></tr>
-        {/each}
+        <thead>
+            <tr><th>Name</th><th>Rights</th><th>Job responsibility</th></tr>
+        </thead>
+        <tbody>
+            {#each adminMembers as member}
+                <tr><td>{member.name}</td><td>Admin</td><td>{member.role}</td></tr>
+            {/each}
+            {#each editMembers as member}
+                <tr><td>{member.name}</td><td>Edit</td><td>{member.role}</td></tr>
+            {/each}
+            {#each viewMembers as member}
+                <tr><td>{member.name}</td><td>View</td><td>{member.role}</td></tr>
+            {/each}
+        </tbody>
     </table>
 {/if}
 

@@ -13,8 +13,8 @@ import {
     type ArtifactInstancesList,
     type ArtifactInstanceResponse,
     type ArtifactInstanceElement,
-} from "./stores";
-import { errorMsgs } from "./stores";
+} from "./stores.svelte";
+import { errorMsgs } from "./stores.svelte";
 import type { ArchitecturesList } from "./ca-schemaListArchitectures";
 
 /** Access Cognitive Architect architectures and its artifcats.

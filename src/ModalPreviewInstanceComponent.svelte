@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { type ArtifactInstanceElement } from "./lib/stores";
+    import { type ArtifactInstanceElement } from "./lib/stores.svelte";
 
     export let responseDiagram: string | ArrayBuffer | null | undefined;
     export let responseElements: ArtifactInstanceElement[] = [];
@@ -21,16 +21,20 @@
 
 <h5>Elements in this artifact</h5>
 <table class="vertical-">
-    <tr><th>Element</th><th>Label</th><th>description</th></tr>
-    {#each responseElements as element}
-        {#if element.owned != "-1"}
-            <tr>
-                <td>{element.modelType} {element.type ? "(" + element.type + ")" : ""}</td>
-                <td>{element.label}</td>
-                <td>{element.description}</td>
-            </tr>
-        {/if}
-    {/each}
+    <thead>
+        <tr><th>Element</th><th>Label</th><th>description</th></tr>
+    </thead>
+    <tbody>
+        {#each responseElements as element}
+            {#if element.owned != "-1"}
+                <tr>
+                    <td>{element.modelType} {element.type ? "(" + element.type + ")" : ""}</td>
+                    <td>{element.label}</td>
+                    <td>{element.description}</td>
+                </tr>
+            {/if}
+        {/each}
+    </tbody>
 </table>
 
 <style>

@@ -2,11 +2,12 @@ import { ItemView, WorkspaceLeaf } from "obsidian";
 import CAViewComponent from "./CAViewComponent.svelte";
 import { CAArchitecture } from "./lib/ca";
 import { CA_ICON_NAME } from "./starterIndex";
+import { mount } from "svelte";
 
 export const VIEW_TYPE = "ca-view";
 
 export class CAView extends ItemView {
-    private component: CAViewComponent | null = null;
+    private component: ReturnType<typeof CAViewComponent> | null = null;
     private ca: CAArchitecture | null = null;
 
     constructor(leaf: WorkspaceLeaf, ca: CAArchitecture | null) {
@@ -27,7 +28,7 @@ export class CAView extends ItemView {
     }
 
     async onOpen(): Promise<void> {
-        this.component = new CAViewComponent({
+        this.component = mount(CAViewComponent, {
             target: this.contentEl,
             props: {
                 ca: this.ca,

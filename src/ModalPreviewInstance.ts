@@ -1,9 +1,10 @@
 import { App, Modal } from "obsidian";
 import ModalPreviewInstanceComponent from "./ModalPreviewInstanceComponent.svelte";
-import type { ArtifactInstanceElement } from "./lib/stores";
+import type { ArtifactInstanceElement } from "./lib/stores.svelte";
+import { mount } from "svelte";
 
 export class ModalPreviewInstance extends Modal {
-    #component: ModalPreviewInstanceComponent | null = null;
+    #component: ReturnType<typeof ModalPreviewInstanceComponent> | null = null;
     resDiagram: string | ArrayBuffer | null | undefined = null;
     resElements: ArtifactInstanceElement[];
     constructor(app: App, resDiagram: string | ArrayBuffer | null | undefined, resElements: ArtifactInstanceElement[]) {
@@ -13,7 +14,7 @@ export class ModalPreviewInstance extends Modal {
     }
 
     onOpen() {
-        this.#component = new ModalPreviewInstanceComponent({
+        this.#component = mount(ModalPreviewInstanceComponent, {
             target: this.contentEl,
             props: {
                 responseDiagram: this.resDiagram,
