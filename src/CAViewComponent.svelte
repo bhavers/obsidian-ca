@@ -1,26 +1,15 @@
 <script lang="ts">
     import { type App } from "obsidian";
-    import type { CAArchitecture } from "./lib/ca";
+    import type { CAArchitecture } from "./lib/ca.svelte";
     import Png from "carbon-icons-svelte/lib/Png.svelte";
     import Svg from "carbon-icons-svelte/lib/Svg.svelte";
     import View from "carbon-icons-svelte/lib/View.svelte";
     import DocumentDownload from "carbon-icons-svelte/lib/DocumentDownload.svelte";
     import { RefreshCw, Settings, Info, Download, CircleX } from "lucide-svelte";
-    import {
-        archList,
-        archInfo,
-        archArtifacts,
-        selectedArch,
-        SELECT_NONE,
-        type ArtifactType,
-        archArtifactInstancesList,
-        type ArtifactInstanceElement,
-    } from "./lib/stores.svelte";
+    import { archList, architecture, errorMsgs, progress, SELECT_NONE, type ArtifactType, type ArtifactInstanceElement } from "./lib/states.svelte";
     import { CAArchfInfoModal } from "./CAArchInfoModal";
     import { ModalPreviewInstance } from "./ModalPreviewInstance";
-    import { CAObsidian } from "./lib/ca-obsidian";
-    import { progress } from "./lib/stores.svelte";
-    import { errorMsgs } from "./lib/stores.svelte";
+    import { CAObsidian } from "./lib/ca-obsidian.svelte";
     import { Progress } from "./lib/progress";
 
     interface Props {
@@ -47,10 +36,9 @@
     });
 
     // Show error message and close manually.
-    //let errorEl: HTMLDivElement = $state() as HTMLDivElement;
     let errorEl: HTMLDivElement;
     $effect(() => {
-        if (errorEl && $errorMsgs[0]) {
+        if (errorEl && errorMsgs.value[0]) {
             errorEl.style.display = "grid";
         } else {
             if (errorEl) errorEl.style.display = "none";
@@ -58,12 +46,12 @@
     });
     function closeError() {
         errorEl.style.display = "none";
-        $errorMsgs = [];
+        errorMsgs.value = [];
     }
 
     /** Invalidate the state of selections to defaults */
     function invalidateSelections(artifacts: boolean = true, instances: boolean = false) {
-        $errorMsgs = [];
+        errorMsgs.value = [];
         if (artifacts) {
             selectedArtifactId = null;
             selectedArtifactType = null;
@@ -83,8 +71,8 @@
                 caObsidian.getSetting("retrieveCollaborationArchitectures") as boolean,
             ))
         ) {
-            if ($errorMsgs) {
-                $errorMsgs[$errorMsgs.length] = "Cannot retrieve architectures (no connection or VPN? Wrong base Url?)";
+            if (errorMsgs) {
+                errorMsgs.value[errorMsgs.value.length] = "Cannot retrieve architectures (no connection or VPN? Wrong base Url?)";
             }
         }
         progress.set(1);
@@ -95,9 +83,9 @@
         invalidateSelections(true, true);
         let value = 0.3;
         progress.set(0.3);
-        await ca?.getArchitectureInfo($selectedArch);
+        await ca?.getArchitectureInfo(architecture.selected);
         progress.set(0.7);
-        await ca?.getArtifactCatalog($selectedArch);
+        await ca?.getArtifactCatalog(architecture.selected);
         progress.set(1);
     }
 
@@ -111,15 +99,15 @@
         if (artifactType && artifactId) {
             progress.set(0.4);
             invalidateSelections(true, true);
-            await ca?.getArtifactInstanceSummary($selectedArch, artifactType as ArtifactType, artifactId);
+            await ca?.getArtifactInstanceSummary(architecture.selected, artifactType as ArtifactType, artifactId);
             progress.set(0.6, { duration: 0 });
 
             if (selectArtifact) {
                 // only set selected artifact if explicitely selected through gui (not on download all)
                 selectedArtifactType = artifactType as ArtifactType; // set the selected artifactType
                 selectedArtifactId = artifactId; // set the selected artifactId
-                if ($archArtifactInstancesList) {
-                    selectedInstanceId = $archArtifactInstancesList[0]._id; // Make the first instance selected by default.
+                if (architecture.instances) {
+                    selectedInstanceId = architecture.instances[0]._id; // Make the first instance selected by default.
                 }
             }
         }
@@ -151,23 +139,23 @@
     /** Save all artifacts (and its instances) of the selected architecture */
     async function saveAll() {
         progress.set(0.1);
-        await ca?.getArtifactCatalog($selectedArch);
-        if ($archArtifacts != null) {
-            const progressArtifact = new Progress(0.2, 1, $archArtifacts.length);
+        await ca?.getArtifactCatalog(architecture.selected);
+        if (architecture.artifacts != null) {
+            const progressArtifact = new Progress(0.2, 1, architecture.artifacts.length);
             progress.set(progressArtifact.actual);
-            for (const [i, artifact] of $archArtifacts.entries()) {
-                await ca?.getArtifactInstanceSummary($selectedArch, artifact.artifactType as ArtifactType, artifact._id);
+            for (const [i, artifact] of architecture.artifacts.entries()) {
+                await ca?.getArtifactInstanceSummary(architecture.selected, artifact.artifactType as ArtifactType, artifact._id);
                 progress.set(progressArtifact.next);
-                if (artifact.artifactType !== undefined && $archArtifactInstancesList !== null) {
+                if (artifact.artifactType !== undefined && architecture.instances !== null) {
                     // Download instances in parallel, see Promise.allSettled @see: https://www.youtube.com/watch?v=f2Z1v3cqgDI
                     const progressInstances = new Progress(
                         progressArtifact.actual,
                         progressArtifact.actual + progressArtifact.step,
-                        $archArtifactInstancesList.length,
+                        architecture.instances.length,
                     );
                     const t0 = performance.now();
 
-                    const promises = $archArtifactInstancesList.map((instance) => {
+                    const promises = architecture.instances.map((instance) => {
                         progress.set(progressInstances.next);
                         return caObsidian.retrieveInstanceElements(artifact.artifactType as ArtifactType, instance._id, false);
                     });
@@ -182,7 +170,7 @@
                     });
                     await caObsidian.saveElements(instances);
                     const totalTime = (performance.now() - t0) / 1000; // secs
-                    //console.log(`Downloading ${artifact.artifactType} (${$archArtifactInstancesList.length} instances) took ${totalTime.toFixed(1)} sec.`);
+                    //console.log(`Downloading ${artifact.artifactType} (${architecture.instances.length} instances) took ${totalTime.toFixed(1)} sec.`);
                 }
             }
         }
@@ -206,8 +194,8 @@
     /** Opens modal to preview artifact (diagram and meta data) */
     async function previewInstance() {
         if (selectedArtifactType && selectedInstanceId) {
-            const resDiagram = await ca?.getArtifactInstanceDiagram($selectedArch, selectedArtifactType, selectedInstanceId, "svg");
-            const resElements = await ca?.getArtifactInstanceDetails($selectedArch, selectedArtifactType, selectedInstanceId);
+            const resDiagram = await ca?.getArtifactInstanceDiagram(architecture.selected, selectedArtifactType, selectedInstanceId, "svg");
+            const resElements = await ca?.getArtifactInstanceDetails(architecture.selected, selectedArtifactType, selectedInstanceId);
             if (resDiagram && resElements && obsApp) {
                 new ModalPreviewInstance(obsApp, resDiagram, resElements).open();
             }
@@ -216,7 +204,7 @@
 </script>
 
 <div>
-    {#key $selectedArch}
+    {#key architecture.selected}
         <!-- classes borrowed from built-in Obsidian Backlinks views -->
         <div class="nav-header">
             <div class="nav-buttons-container">
@@ -230,7 +218,7 @@
                 <div onclick={gotoSettings} aria-label="Settings for this plugin.">
                     <Settings size="30" class="clickable-icon nav-action-button" />
                 </div>
-                {#if $selectedArch !== SELECT_NONE}
+                {#if architecture.selected !== SELECT_NONE}
                     <!-- svelte-ignore a11y_click_events_have_key_events -->
                     <!-- svelte-ignore a11y_no_static_element_interactions -->
                     <div onclick={showArchitectureInfo} aria-label="Information on selected architecture.">
@@ -251,8 +239,8 @@
     </div>
     <div bind:this={errorEl} id="error-container">
         <div id="error-text">
-            {#if $errorMsgs.length > 1}
-                {$errorMsgs.length} errors
+            {#if errorMsgs.value.length > 1}
+                {errorMsgs.value.length} errors
             {:else}
                 Error
             {/if}
@@ -263,36 +251,36 @@
             <CircleX size="26" color="red" class="clickable-icon nav-action-button" />
         </div>
         <div id="error-msg">
-            {#if $errorMsgs.length > 1}
+            {#if errorMsgs.value.length > 1}
                 <!-- svelte-ignore a11y_invalid_attribute -->
                 <a href="#" onclick={openLog}>Open logfile...</a>
             {:else}
-                {$errorMsgs[0]}
+                {errorMsgs.value[0]}
             {/if}
         </div>
     </div>
-    {#key $archList}
+    {#key archList}
         <div class="arch_information">
-            {#if $archList}
+            {#if archList.value}
                 <div class="item_label">
                     <label for="arch_name">
                         My Architectures
-                        {#if $archList !== null && $archList !== undefined}
-                            ({$archList.length})
+                        {#if archList.value !== null && archList.value !== undefined}
+                            ({archList.value.length})
                         {:else}
                             (0)
                         {/if}
                     </label>
                 </div>
                 <div class="item_value">
-                    <select name="arch_name" id="arch_names" bind:value={$selectedArch} onchange={() => getListArtifacts()}>
-                        {#if $selectedArch === SELECT_NONE}
+                    <select name="arch_name" id="arch_names" bind:value={architecture.selected} onchange={() => getListArtifacts()}>
+                        {#if architecture.selected === SELECT_NONE}
                             <option selected disabled value="none">None selected</option>
                         {:else}
                             <option disabled value="none">None selected</option>
                         {/if}
-                        {#if $archList !== null && $archList !== undefined}
-                            {#each $archList as architecture}
+                        {#if archList.value !== null && archList.value !== undefined}
+                            {#each archList.value as architecture}
                                 <option value={architecture._id}>{architecture.name}</option>
                             {/each}
                         {/if}
@@ -301,15 +289,15 @@
             {:else if ca?.isTokenSet()}
                 Hit Refresh to load architectures
             {/if}
-            {#if $archInfo}
-                <div class="item_value">{$archInfo.clientName}</div>
-                <div class="item_value" style="font-size: smaller;">Updated {$archInfo.lastModified}</div>
+            {#if architecture.info}
+                <div class="item_value">{architecture.info.clientName}</div>
+                <div class="item_value" style="font-size: smaller;">Updated {architecture.info.lastModified}</div>
 
                 <h5>Artifacts</h5>
                 <ul>
                     <!-- {#key selectedArtifactId} -->
-                    {#if $archArtifacts != null}
-                        {#each $archArtifacts as artifact}
+                    {#if architecture.artifacts != null}
+                        {#each architecture.artifacts as artifact}
                             <li>
                                 {#if artifact._id === selectedArtifactId}
                                     <div style="font-weight:500">{artifact.displayName}</div>
@@ -324,21 +312,21 @@
                 </ul>
 
                 <!-- List the instances of the selected artifact -->
-                {#if selectedArtifactType && $archArtifactInstancesList != null}
+                {#if selectedArtifactType && architecture.instances != null}
                     <!-- {#key selectedArtifactId} -->
-                    {#if $archArtifactInstancesList.length > 1}
-                        <h6>Instances (1 of {$archArtifactInstancesList.length})</h6>
+                    {#if architecture.instances.length > 1}
+                        <h6>Instances (1 of {architecture.instances.length})</h6>
                         <select class="item_value" name="arch_artifact_instances" id="arch_artifact_instances" bind:value={selectedInstanceId}>
                             <option value="" disabled selected>Select instance</option>
-                            {#each $archArtifactInstancesList as artifactInstance}
+                            {#each architecture.instances as artifactInstance}
                                 <option value={artifactInstance._id}>{artifactInstance.name}</option>
                             {/each}
                         </select><br />
                     {:else}
                         <h6>Instance</h6>
                         <div style="padding-left: 1rem">
-                            {#if $archArtifactInstancesList[0].name}
-                                {$archArtifactInstancesList[0].name}
+                            {#if architecture.instances[0].name}
+                                {architecture.instances[0].name}
                             {:else}
                                 {ca?.getArtifactName(selectedArtifactType)}
                             {/if}

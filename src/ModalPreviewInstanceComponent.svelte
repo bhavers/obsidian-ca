@@ -1,8 +1,12 @@
 <script lang="ts">
-    import { type ArtifactInstanceElement } from "./lib/stores.svelte";
+    import { type ArtifactInstanceElement } from "./lib/states.svelte";
 
-    export let responseDiagram: string | ArrayBuffer | null | undefined;
-    export let responseElements: ArtifactInstanceElement[] = [];
+    interface Props {
+        responseDiagram: string | ArrayBuffer | null | undefined;
+        responseElements?: ArtifactInstanceElement[];
+    }
+
+    let { responseDiagram, responseElements = [] }: Props = $props();
 
     function getDiagram() {
         if (responseDiagram) {
@@ -16,7 +20,7 @@
 </script>
 
 <h3>Preview</h3>
-<!-- svelte-ignore a11y-missing-attribute -->
+<!-- svelte-ignore a11y_missing_attribute -->
 <img src={getDiagram()} class="img_preview" />
 
 <h5>Elements in this artifact</h5>

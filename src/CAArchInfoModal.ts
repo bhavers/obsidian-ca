@@ -1,11 +1,10 @@
 import { App, Modal } from "obsidian";
 import CAArchInfoModalComponent from "./CAArchInfoModalComponent.svelte";
-import { archInfo } from "./lib/stores.svelte";
-import { get } from "svelte/store";
-import { mount, SvelteComponent } from "svelte";
+import { architecture } from "./lib/states.svelte";
+import { mount } from "svelte";
 
 export class CAArchfInfoModal extends Modal {
-    private component: ReturnType<typeof CAArchInfoModalComponent> | null;
+    private component: ReturnType<typeof CAArchInfoModalComponent> | null = null;
     constructor(app: App) {
         super(app);
     }
@@ -13,14 +12,16 @@ export class CAArchfInfoModal extends Modal {
     onOpen() {
         // let { contentEl } = this;
         // contentEl.setText("Look at me, I'm a modal!");
-        this.component = mount(CAArchInfoModalComponent, {
-            target: this.contentEl,
-            props: {
-                arch: get(archInfo),
-                //ca: this.ca,
-                //obsApp: this.app,
-            },
-        });
+        if (architecture.info) {
+            this.component = mount(CAArchInfoModalComponent, {
+                target: this.contentEl,
+                props: {
+                    arch: architecture.info,
+                    //ca: this.ca,
+                    //obsApp: this.app,
+                },
+            });
+        }
     }
 
     onClose() {

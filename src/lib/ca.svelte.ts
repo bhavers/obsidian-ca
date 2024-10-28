@@ -1,25 +1,21 @@
 import { requestUrl, type RequestUrlParam } from "obsidian";
 import {
     archList,
-    archInfo,
-    archArtifacts,
-    selectedArch,
-    elements,
+    architecture,
     SELECT_NONE,
-    archArtifactInstancesList,
     ARTIFACT_WITH_DIAGRAM,
+    errorMsgs,
     type ArtifactType,
     type ArtifactCatalog,
     type ArtifactInstancesList,
     type ArtifactInstanceResponse,
     type ArtifactInstanceElement,
-} from "./stores.svelte";
-import { errorMsgs } from "./stores.svelte";
+} from "./states.svelte";
 import type { ArchitecturesList } from "./ca-schemaListArchitectures";
 
 /** Access Cognitive Architect architectures and its artifcats.
- * The data is available through stores, not through public fields on the class. This makes reactivity of the data in
- * the view easier to implement. Maybe later rethink this approach with Svelte 5 Runes.
+ * The data is available through the state rune (see Svelte 5 docs), not through public fields on the class. This makes reactivity of the data in
+ * the view easier to implement.
  * Types for the objects returned from the API are imported separately, see notes in stores.ts.
  * Steps to retrieve the data:
  * 1. List architectures (private and collaboration architecture); this uses an undocumented API, only available through PUT request
@@ -64,7 +60,8 @@ export class CAArchitecture {
             if (response.status === 200) {
                 //console.log(response.json);
                 //this.architecturesList = response.json.data;
-                archList.set(response.json.data);
+                archList.value = response.json.data;
+                //archList.set(response.json.data);
                 return true;
             } else {
                 // This won't be executed, the Promise will thrown an error.
@@ -76,7 +73,7 @@ export class CAArchitecture {
             return false;
         }
     }
-    /** Retrieve all collaboration architectures of the user
+    /** Retrieve a list of all architectures of the user (checks settings for the type of architectures to list)
      * Sets the result in architecuresList field and triggers the onUpdate function (for clients to respond to).
      */
     async getArchitecturesList(privateArchitectures = true, collaborationArchitectures = false): Promise<boolean> {
@@ -90,8 +87,9 @@ export class CAArchitecture {
             if (response) listArch = [...listArch, ...response];
         }
         if (listArch.length > 0) {
-            //console.log(listArch);
-            archList.set(listArch);
+            // console.log(listArch);
+            archList.value = listArch;
+            //archList.set(listArch);
             return true;
         }
         return false;
@@ -142,14 +140,17 @@ export class CAArchitecture {
                 headers,
             });
             if (response.status === 200) {
-                selectedArch.set(archId);
-                archInfo.set(response.json);
+                architecture.selected = archId;
+                // selectedArch.set(archId);
+                architecture.info = response.json;
+                // archInfo.set(response.json);
             } else {
                 // console.log(`Error ${response.status} and ${response.json}`);
             }
         } catch (error) {
             const err = `Can't retrieve information on architecture.`;
-            errorMsgs.update((value) => [...value, err]);
+            errorMsgs.value.push(err);
+            // errorMsgs.update((value) => [...value, err]);
             // console.log(`${err}\n${error} `);
         }
     }
@@ -171,13 +172,15 @@ export class CAArchitecture {
             });
             if (response.status === 200) {
                 if (response.json.archId !== "") {
-                    archArtifacts.set(this.filterArtifacts(response.json));
+                    architecture.artifacts = this.filterArtifacts(response.json);
+                    // archArtifacts.set(this.filterArtifacts(response.json));
                     // console.log(get(archArtifacts));
                 }
             }
         } catch (error) {
             const err = `Can't retrieve artefacts of architecture.`;
-            errorMsgs.update((value) => [...value, err]);
+            errorMsgs.value.push(err);
+            // errorMsgs.update((value) => [...value, err]);
             // console.log(`${err} \n${error} `);
         }
     }
@@ -207,14 +210,17 @@ export class CAArchitecture {
                 // Only artifactTypes of "Notes" have a property artifactTypeId; those should be furter filtered (into RACI, Sizing and Notes).
                 // Checking the first instance of the response for this property is enough.
                 if (artifactTypeId && Object.hasOwn(response.json[0], "artifactTypeId")) {
-                    archArtifactInstancesList.set(response.json.filter((item) => item.artifactTypeId === artifactTypeId));
+                    architecture.instances = response.json.filter((item) => item.artifactTypeId === artifactTypeId);
+                    //archArtifactInstancesList.set(response.json.filter((item) => item.artifactTypeId === artifactTypeId));
                 } else {
-                    archArtifactInstancesList.set(response.json);
+                    architecture.instances = response.json;
+                    // archArtifactInstancesList.set(response.json);
                 }
             }
         } catch (error) {
             const err = `Can't retrieve instances of an artefact.`;
-            errorMsgs.update((value) => [...value, err]);
+            errorMsgs.value.push(err);
+            // errorMsgs.update((value) => [...value, err]);
             // console.log(`${err}\n${error} `);
         }
     }
@@ -247,12 +253,13 @@ export class CAArchitecture {
             });
             if (response.status === 200) {
                 // console.log(response.json);
-                elements.set((response.json as ArtifactInstanceResponse).coreInfo);
+                architecture.elements = (response.json as ArtifactInstanceResponse).coreInfo;
                 return response.json.coreInfo;
             } else return null;
         } catch (error) {
             const err = `Can't retrieve the meta data an instance of an artefact.`;
-            errorMsgs.update((value) => [...value, err]);
+            errorMsgs.value.push(err);
+            // errorMsgs.update((value) => [...value, err]);
             // console.log(`${err}\n${error} `);
             return null;
         }
@@ -273,7 +280,8 @@ export class CAArchitecture {
         artifactFormat: "png" | "svg"
     ): Promise<string | ArrayBuffer | null> {
         if (archId == null && artifactType == null && instanceId == null && ARTIFACT_WITH_DIAGRAM.includes(artifactType)) {
-            errorMsgs.update((value) => [...value, "Requested artifact is not a digram"]);
+            errorMsgs.value.push("Requested artifact is not a digram");
+            // errorMsgs.update((value) => [...value, "Requested artifact is not a digram"]);
             console.warn(`Not provided valid arguments, or requested artifact is not a diagram`);
             return null;
         }
@@ -308,7 +316,8 @@ export class CAArchitecture {
             } else return null;
         } catch (error) {
             const err = `Can't retrieve diagram.`;
-            errorMsgs.update((value) => [...value, err]);
+            errorMsgs.value.push(err);
+            // errorMsgs.update((value) => [...value, err]);
             // console.log(`${err}\n${error} `);
             return null;
         }
@@ -351,10 +360,14 @@ export class CAArchitecture {
     /** Clears all data from this class.
      * It does not clear data at the Cognitive Architect service. Use this, for example, if you change the Personal Token. */
     public invalidate() {
-        archList.set(null);
-        archInfo.set(null); // This causes a TypeError in some circumstances: https://discord.com/channels/686053708261228577/840286264964022302/1237152734415818803
-        archArtifacts.set(null);
-        selectedArch.set(SELECT_NONE);
+        //archList.set(null);
+        archList.value = null;
+        architecture.info = null;
+        // archInfo.set(null); // This causes a TypeError in some circumstances: https://discord.com/channels/686053708261228577/840286264964022302/1237152734415818803
+        architecture.artifacts = null;
+        // archArtifacts.set(null);
+        architecture.selected = SELECT_NONE;
+        // selectedArch.set(SELECT_NONE);
     }
     /** Set the personal token to access the Cognitive Architect services.*/
     public setToken(token: string) {

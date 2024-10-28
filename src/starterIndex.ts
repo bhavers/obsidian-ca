@@ -3,7 +3,7 @@ import { Platform, Plugin, WorkspaceLeaf } from "obsidian";
 import type { CAPluginSettings } from "./CASettings";
 import { DEFAULT_SETTINGS, CASettingTab } from "./CASettings";
 import { VIEW_TYPE, CAView } from "./CAView";
-import { CAArchitecture } from "./lib/ca";
+import { CAArchitecture } from "./lib/ca.svelte";
 
 export const CA_ICON_NAME = "monitor-down"; //https://lucide.dev/icons/monitor-down
 

@@ -91,9 +91,9 @@ git push
 | src/CAView.ts and CAViewComponent.svelte                                     | The main view (in the sidebar) of this plugin                                            |
 | src/CAArchInfoModal.ts and<br/> CAArchInfoModalComponent                     | The Architecture Information dialog (that pops up after selecting the Information icon)  |
 | src/ModalPreviewInstance.ts and<br/> ModalPreviewInstanceComponent           | Dialog with a preview of the artificat (pops up after clicking the Preview icon)         |
-| lib/ca.ts                                                                    | The main logic to fetch data from Cognitive Architect                                    |
-| lib/ca-obsidian.ts                                                           | Bridge between ca.ts (that retrieves artifact data) and Obsidian (storing data as notes) |
-| lib/stores.ts                                                                | [Svelte Stores](https://svelte.dev/docs/svelte-store) and type definitions               |
+| lib/ca.svelte.ts                                                             | The main logic to fetch data from Cognitive Architect                                    |
+| lib/ca-obsidian.svelte.ts                                                    | Bridge between ca.ts (that retrieves artifact data) and Obsidian (storing data as notes) |
+| lib/states.svelte.ts                                                         | [Svelte 5 $state runes](https://svelte.dev/docs/svelte/$state) and type definitions      |
 | lib/ca-openapi.json, ca-schema.d.ts and<br/> ca-schemaListArchitectures.d.ts | Typescript schema definitions generated from the Cognitive Architect OpenAPI definition  |
 | lib/progress.ts                                                              | Progress bar component (used in CAView)                                                  |
 

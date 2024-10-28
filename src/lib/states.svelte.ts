@@ -1,12 +1,11 @@
-import { writable } from "svelte/store";
 import type { ArchitecturesList } from "./ca-schemaListArchitectures";
 import type { components } from "./ca-schema";
 import { tweened } from "svelte/motion";
 import { cubicOut } from "svelte/easing";
 
-/** Store definitions for Cognitive Architect objects.
+/** State definitions for Cognitive Architect objects.
  *
- * The stores are 1:1 copies of the objects returned by the Cognitive Architect API.
+ * The states are 1:1 copies of the objects returned by the Cognitive Architect API.
  * The OpenAPI definition has been converted to Typescript definitions .d.ts in the following steps:
  * - ca-openapi.json received from CA team (stored in /lib/)
  * - used openapi-typescript on the cmd line to convert
@@ -32,22 +31,28 @@ export type ArtifactInstanceResponse = components["schemas"]["ArtifactInstanceRe
 //export type ArtifactInstanceElement = components["schemas"]["ArtifactInstanceResponse"]["coreInfo"];
 export type ArtifactInstanceElement = Record<string, string>; // don't understand why it is otherwise Record<string, never>
 export type DiagramFormat = "svg" | "png";
-
 export const SELECT_NONE = "none";
 
-export const archList = writable<ArchitecturesList[] | null>(null);
-export const archInfo = writable<ArchitectureInfo | null>(null);
-export const archArtifacts = writable<ArtifactCatalog[] | null>();
-export const archArtifactInstancesList = writable<ArtifactInstancesList[] | null>();
-export const selectedArch = writable<ArchitectureInfo["archId"]>(SELECT_NONE);
-export const elements = writable<ArtifactInstanceElement>();
+export const archList = $state<{ value: ArchitecturesList[] | null }>({ value: null });
+
+// Note: using this class in this way needs the target in tsconfig.js to be set to es2022.
+class Architecture {
+    public info: ArchitectureInfo | null = $state(null);
+    public artifacts: ArtifactCatalog[] | null = $state(null);
+    public instances: ArtifactInstancesList[] | null = $state(null);
+    public selected: ArchitectureInfo["archId"] = $state(SELECT_NONE);
+    public elements: ArtifactInstanceElement | null = $state(null);
+    constructor() {}
+}
+export const architecture = new Architecture();
 
 /** set this store to value between 0 and 1 to show progress visually. Set to 0 to hide it */
 export const progress = tweened(0, {
     duration: 400,
     easing: cubicOut,
 });
-export const errorMsgs = writable<string[]>([]);
+
+export const errorMsgs = $state<{ value: string[] }>({ value: [] });
 
 //export const modelTypeBase: string[] = ["POMView", "FunctionalRequirement", "LogicalComponent", "Implementation", "DU", "Actor", "LogicalNode", "OMLocation"];
 

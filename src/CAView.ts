@@ -1,6 +1,6 @@
 import { ItemView, WorkspaceLeaf } from "obsidian";
 import CAViewComponent from "./CAViewComponent.svelte";
-import { CAArchitecture } from "./lib/ca";
+import { CAArchitecture } from "./lib/ca.svelte";
 import { CA_ICON_NAME } from "./starterIndex";
 import { mount } from "svelte";
 

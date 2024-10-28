@@ -1,7 +1,15 @@
 <script lang="ts">
-    export let arch;
+    import type { components } from "./lib/ca-schema";
+    import type { ArchitectureInfo } from "./lib/states.svelte";
 
-    type Member = { fullname: string; jobResponsibilities: string };
+    interface Props {
+        arch: ArchitectureInfo;
+    }
+
+    let { arch }: Props = $props();
+
+    type Member = components["schemas"]["ArchBriefTeamUserResponse"];
+
     const owner = arch?.owner?.fullname ? arch.owner?.fullname : "";
     const adminMembers: { name: string; role: string }[] = [];
     if (arch?.team?.adminMembers) {

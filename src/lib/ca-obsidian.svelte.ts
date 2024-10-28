@@ -1,16 +1,14 @@
 import { Notice, TFile, type App } from "obsidian";
-import type { CAArchitecture } from "./ca";
+import type { CAArchitecture } from "./ca.svelte";
 import {
-    archInfo,
-    selectedArch,
+    architecture,
     SELECT_NONE,
+    errorMsgs,
     type ArtifactType,
     type ArtifactInstanceElement,
     type DiagramFormat,
     ARTIFACT_WITH_DIAGRAM,
-} from "./stores.svelte";
-import { get } from "svelte/store";
-import { errorMsgs } from "./stores.svelte";
+} from "./states.svelte";
 import type CAPlugin from "src/starterIndex";
 import type { CAPluginSettings } from "src/CASettings";
 
@@ -34,12 +32,12 @@ export class CAObsidian {
      * Depends on $errorMsgs store. */
     public async saveLog(title: string) {
         this.fullPathLog = this.generateFolder() + "/Log.md"; // overwrite, probably project directory is known by now.
-        if (get(errorMsgs).length === 0) return; // do nothing if there are no errors.
+        if (errorMsgs.value.length === 0) return; // do nothing if there are no errors.
         let file = this.obsApp.vault.getFileByPath(this.fullPathLog);
         try {
             let markdown = `\n# ${new Intl.DateTimeFormat(undefined, { dateStyle: "short", timeStyle: "short" }).format(new Date())} ${title}\n`;
             markdown += "```\n";
-            for (const error of get(errorMsgs).values()) {
+            for (const error of errorMsgs.value.values()) {
                 markdown += error + "\n";
             }
             markdown += "```\n";
@@ -82,17 +80,17 @@ export class CAObsidian {
         let fullPath = "";
         // Check if artifact can have a diagram; as the API will take long-time to timeout if a diagram is requested of an artifact that can't have a diagram (like functional req).
         if (selectedArtifactType && ARTIFACT_WITH_DIAGRAM.contains(selectedArtifactType) && instanceId) {
-            const res = await this.ca?.getArtifactInstanceDiagram(get(selectedArch), selectedArtifactType, instanceId, artifactFormat);
+            const res = await this.ca?.getArtifactInstanceDiagram(architecture.selected, selectedArtifactType, instanceId, artifactFormat);
             if (res && this.obsApp) {
                 // Obsidian Vault API: https://docs.obsidian.md/Reference/TypeScript+API/Vault
                 if (!outputFilename) {
-                    const resElements = await this.ca?.getArtifactInstanceDetails(get(selectedArch), selectedArtifactType, instanceId);
+                    const resElements = await this.ca?.getArtifactInstanceDetails(architecture.selected, selectedArtifactType, instanceId);
                     if (resElements) {
                         outputFilename = this.generateFilename(resElements[0]);
                     } else {
-                        outputFilename = instanceId + "-" + get(selectedArch);
+                        outputFilename = instanceId + "-" + architecture.selected;
                     }
-                    //fullPath = this.generateFolder() + "/" + artifactId + "-" + get(selectedArch) + "." + artifactFormat;
+                    //fullPath = this.generateFolder() + "/" + artifactId + "-" + architecture.selected + "." + artifactFormat;
                 }
                 fullPath = this.generateFolder(true) + "/" + outputFilename + "." + artifactFormat;
                 // console.log(fullPath);
@@ -167,7 +165,7 @@ export class CAObsidian {
                             const { _id: id, ...rest } = element; // rename key _id to id, easier to use in Obsidian
                             const updatedElement = { id, ...rest };
                             Object.assign(frontmatter, updatedElement);
-                            frontmatter.architectureId = get(selectedArch);
+                            frontmatter.architectureId = architecture.selected;
                             if (element.owned != "-1" && counter !== 0) {
                                 frontmatter.ownedByInstanceId = [allElements[0]._id];
                             } else delete frontmatter.owned;
@@ -194,7 +192,8 @@ export class CAObsidian {
                     }
                 } catch (error) {
                     const err = `${error}`;
-                    errorMsgs.update((value) => [...value, err + " " + filename]);
+                    errorMsgs.value.push(err + " " + filename);
+                    // errorMsgs.update((value) => [...value, err + " " + filename]);
                     //console.log(error, filename, file);
                 }
                 counter++;
@@ -217,9 +216,9 @@ export class CAObsidian {
     ): Promise<ArtifactInstanceElement[] | null> {
         // console.log(`saveArtifact: ${selectedArtifactType} and ${instanceId}`);
 
-        if (get(selectedArch) !== SELECT_NONE && instanceId) {
+        if (architecture.selected !== SELECT_NONE && instanceId) {
             // Get meta data on artifact and all of the elements associated with it.
-            const resElements = await this.ca?.getArtifactInstanceDetails(get(selectedArch), selectedArtifactType, instanceId);
+            const resElements = await this.ca?.getArtifactInstanceDetails(architecture.selected, selectedArtifactType, instanceId);
             const diagramFormat: DiagramFormat = "svg";
             if (resElements && this.obsApp) {
                 // Save the diagram if there is one associated with this artifact
@@ -258,8 +257,8 @@ SORT modelType ASC\n
         // Get the base import folder from settings.
         folder = this.getSetting("baseFolder") as string;
         // Add folder with Architecture Name (unique in CA), and optionally the architecture identifier to  make it more unique (not necessary))
-        if (get(archInfo)?.name) folder = folder + "/" + get(archInfo)?.name;
-        if (this.getSetting("addIdentifierToFolder")) folder = folder + " - " + get(selectedArch);
+        if (architecture.info?.name) folder = folder + "/" + architecture.info?.name;
+        if (this.getSetting("addIdentifierToFolder")) folder = folder + " - " + architecture.selected;
 
         // Add the Diagrams sub-folder (optionally)
         if (diagram && this.getSetting("diagramsFolder")) folder = folder + "/" + this.getSetting("diagramsFolder");

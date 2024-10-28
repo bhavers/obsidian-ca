@@ -1,6 +1,6 @@
 import { App, Modal } from "obsidian";
 import ModalPreviewInstanceComponent from "./ModalPreviewInstanceComponent.svelte";
-import type { ArtifactInstanceElement } from "./lib/stores.svelte";
+import type { ArtifactInstanceElement } from "./lib/states.svelte";
 import { mount } from "svelte";
 
 export class ModalPreviewInstance extends Modal {
